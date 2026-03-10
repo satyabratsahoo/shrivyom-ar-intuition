@@ -258,6 +258,23 @@ class ARRenderer {
                 this.smoothedBodyMetrics.dynamicScale = this.smoothedBodyMetrics.dynamicScale || 1.0;
                 this.smoothedBodyMetrics.dynamicScale += (metrics.dynamicScale - this.smoothedBodyMetrics.dynamicScale) * 0.08;
             }
+
+            // Always forward chakra positions with smoothing
+            if (metrics.chakraPositions) {
+                if (!this.smoothedBodyMetrics.chakraPositions) {
+                    this.smoothedBodyMetrics.chakraPositions = JSON.parse(JSON.stringify(metrics.chakraPositions));
+                } else {
+                    const posAlpha = 0.15;
+                    for (const id in metrics.chakraPositions) {
+                        if (!this.smoothedBodyMetrics.chakraPositions[id]) {
+                            this.smoothedBodyMetrics.chakraPositions[id] = { ...metrics.chakraPositions[id] };
+                        } else {
+                            this.smoothedBodyMetrics.chakraPositions[id].x += (metrics.chakraPositions[id].x - this.smoothedBodyMetrics.chakraPositions[id].x) * posAlpha;
+                            this.smoothedBodyMetrics.chakraPositions[id].y += (metrics.chakraPositions[id].y - this.smoothedBodyMetrics.chakraPositions[id].y) * posAlpha;
+                        }
+                    }
+                }
+            }
         }
 
         this.bodyMetrics = this.smoothedBodyMetrics;
@@ -593,106 +610,275 @@ class ARRenderer {
     }
 
     drawRigVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale) {
-        // Smaller, cleaner chakras
-        const activation = Math.max(0.3, chakra.intensity / 100);
-        const baseRadius = (15 + activation * 18) * dynamicScale; // Much smaller
-        const pulse = 1 + 0.1 * Math.sin(this.animationPhase * 2 + chakra.id * 0.8);
+        const activation = Math.max(0.4, chakra.intensity / 100);
+        const baseRadius = (22 + activation * 22) * dynamicScale;
+        const pulse = 1 + 0.12 * Math.sin(this.animationPhase * 2 + chakra.id * 0.8);
         const radius = baseRadius * pulse;
         const intensity = this.calibration.glowIntensity;
 
         if (radius < 3) return;
 
-        // Single subtle glow layer (reduced from 6)
-        for (let glow = 2; glow > 0; glow--) {
-            const glowRadius = radius + glow * 6;
-            const alpha = activation * (1 - glow * 0.3) * 0.3 * intensity;
-
+        // Outer glow layers — more visible
+        for (let glow = 3; glow > 0; glow--) {
+            const glowRadius = radius + glow * 10;
+            const alpha = activation * (1 - glow * 0.2) * 0.5 * intensity;
             ctx.beginPath();
             ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
+            ctx.fillStyle = this.hexToRgba(chakra.glowColor, alpha * 0.25);
+            ctx.fill();
             ctx.strokeStyle = this.hexToRgba(chakra.glowColor, alpha);
             ctx.lineWidth = 2;
             ctx.stroke();
         }
 
-        // Main chakra circle with gradient
+        // Main chakra disc — much more opaque
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-        gradient.addColorStop(0, this.hexToRgba(chakra.glowColor, 0.8 * activation));
-        gradient.addColorStop(0.5, this.hexToRgba(chakra.color, 0.6 * activation));
-        gradient.addColorStop(1, this.hexToRgba(chakra.color, 0.1 * activation));
-
+        gradient.addColorStop(0, this.hexToRgba(chakra.glowColor, 0.95 * activation));
+        gradient.addColorStop(0.45, this.hexToRgba(chakra.color, 0.8 * activation));
+        gradient.addColorStop(0.85, this.hexToRgba(chakra.color, 0.5 * activation));
+        gradient.addColorStop(1, this.hexToRgba(chakra.color, 0.15 * activation));
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Draw lotus petals based on chakra
+        // Solid inner ring border
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.92, 0, Math.PI * 2);
+        ctx.strokeStyle = this.hexToRgba('#ffffff', 0.45 * activation);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Draw lotus petals
         this.drawLotusPetals(ctx, x, y, radius, chakra);
 
-        // Draw sacred geometry
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(this.animationPhase * 0.5 + chakra.id * 0.3);
+        // Draw Hindu yantra symbol specific to each chakra
+        this.drawChakraYantra(ctx, x, y, radius, chakra, activation);
 
-        // Inner rotating geometry
-        const innerRadius = radius * 0.7;
-        const sides = Math.min(12, chakra.petals || 6);
-
-        ctx.beginPath();
-        for (let i = 0; i < sides; i++) {
-            const angle = (i / sides) * Math.PI * 2;
-            const px = innerRadius * Math.cos(angle);
-            const py = innerRadius * Math.sin(angle);
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.strokeStyle = this.hexToRgba('#ffffff', 0.5 * activation);
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Counter-rotating inner ring
-        ctx.rotate(-this.animationPhase);
-        ctx.beginPath();
-        ctx.arc(0, 0, innerRadius * 0.5, 0, Math.PI * 2);
-        ctx.strokeStyle = this.hexToRgba(chakra.glowColor, 0.7 * activation);
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.restore();
-
-        // Draw Sanskrit mantra at center
+        // Draw Bija mantra at center
         if (chakra.mantra) {
-            ctx.fillStyle = this.hexToRgba('#ffffff', 0.7 + 0.3 * activation);
-            ctx.font = `bold ${Math.max(14, radius * 0.5)}px Arial, sans-serif`;
+            ctx.save();
+            ctx.shadowColor = chakra.glowColor;
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = this.hexToRgba('#ffffff', 0.85 + 0.15 * activation);
+            ctx.font = `bold ${Math.max(16, radius * 0.55)}px Arial, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(chakra.mantra, x, y);
+            ctx.restore();
         }
 
-        // Draw Sanskrit name label - always visible
-        const labelY = y + radius + 20;
-
-        // Sanskrit name
-        ctx.fillStyle = this.hexToRgba(chakra.glowColor, 0.8 + 0.2 * activation);
-        ctx.font = `bold 12px Arial, sans-serif`;
+        // Sanskrit name label
+        const labelY = y + radius + 22;
+        ctx.fillStyle = this.hexToRgba(chakra.glowColor, 0.9);
+        ctx.font = 'bold 13px Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(chakra.sanskrit || chakra.name, x, labelY);
 
         // English name
-        ctx.fillStyle = this.hexToRgba('#ffffff', 0.7);
+        ctx.fillStyle = this.hexToRgba('#ffffff', 0.8);
         ctx.font = '10px Consolas, monospace';
         ctx.fillText(chakra.name, x, labelY + 15);
 
-        // Frequency and element
-        ctx.fillStyle = this.hexToRgba(chakra.color, 0.8);
+        // Frequency, element & deity
+        ctx.fillStyle = this.hexToRgba(chakra.color, 0.85);
         ctx.font = '9px Consolas';
-        ctx.fillText(`${chakra.frequency}Hz • ${chakra.element}`, x, labelY + 28);
+        ctx.fillText(`${chakra.frequency}Hz • ${chakra.element} • ${chakra.deity}`, x, labelY + 28);
+    }
+
+    /**
+     * Draw traditional Hindu yantra geometry inside each chakra
+     */
+    drawChakraYantra(ctx, x, y, radius, chakra, activation) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        const r = radius * 0.65;
+        const lineAlpha = 0.7 * activation;
+        const fillAlpha = 0.25 * activation;
+
+        switch (chakra.id) {
+            case 1: // MULADHARA — Yellow square (Prithvi yantra)
+                ctx.rotate(this.animationPhase * 0.2);
+                ctx.beginPath();
+                ctx.rect(-r * 0.6, -r * 0.6, r * 1.2, r * 1.2);
+                ctx.strokeStyle = this.hexToRgba('#ffdd44', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#ffdd44', fillAlpha);
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+                // Downward triangle inside square
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.4);
+                ctx.lineTo(-r * 0.4, -r * 0.25);
+                ctx.lineTo(r * 0.4, -r * 0.25);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#ff4444', lineAlpha * 0.8);
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                break;
+
+            case 2: // SVADHISTHANA — Crescent moon (Apas/Water yantra)
+                ctx.rotate(this.animationPhase * 0.25);
+                // Inner circle
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+                ctx.strokeStyle = this.hexToRgba('#ff8822', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#ff8822', fillAlpha);
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+                // Crescent moon
+                ctx.beginPath();
+                ctx.arc(0, -r * 0.05, r * 0.45, Math.PI * 0.8, Math.PI * 0.2, false);
+                ctx.strokeStyle = this.hexToRgba('#ffffff', lineAlpha);
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                // Second arc for crescent
+                ctx.beginPath();
+                ctx.arc(r * 0.1, -r * 0.12, r * 0.35, Math.PI * 0.85, Math.PI * 0.25, false);
+                ctx.strokeStyle = this.hexToRgba('#ffcc88', lineAlpha * 0.7);
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                break;
+
+            case 3: // MANIPURA — Downward red triangle (Agni/Fire yantra)
+                ctx.rotate(this.animationPhase * 0.3);
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.55);
+                ctx.lineTo(-r * 0.55, -r * 0.35);
+                ctx.lineTo(r * 0.55, -r * 0.35);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#ff4400', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#ff6600', fillAlpha * 1.3);
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+                // T-shaped projections (swastika arms on the triangle)
+                for (let i = 0; i < 3; i++) {
+                    const a = (i / 3) * Math.PI * 2 - Math.PI / 2;
+                    const ex = r * 0.45 * Math.cos(a);
+                    const ey = r * 0.45 * Math.sin(a);
+                    ctx.beginPath();
+                    ctx.moveTo(ex, ey);
+                    ctx.lineTo(ex + r * 0.12 * Math.cos(a), ey + r * 0.12 * Math.sin(a));
+                    ctx.strokeStyle = this.hexToRgba('#ffcc00', lineAlpha * 0.6);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                break;
+
+            case 4: // ANAHATA — Two interlocking triangles / Shatkona (Air yantra)
+                ctx.rotate(this.animationPhase * 0.2);
+                // Upward triangle (Shiva)
+                ctx.beginPath();
+                ctx.moveTo(0, -r * 0.6);
+                ctx.lineTo(-r * 0.52, r * 0.35);
+                ctx.lineTo(r * 0.52, r * 0.35);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#00ff88', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#00ff88', fillAlpha * 0.7);
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+                // Downward triangle (Shakti)
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.6);
+                ctx.lineTo(-r * 0.52, -r * 0.35);
+                ctx.lineTo(r * 0.52, -r * 0.35);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#88ffcc', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#88ffcc', fillAlpha * 0.5);
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+                break;
+
+            case 5: // VISHUDDHA — Circle within circle (Akasha/Ether yantra)
+                ctx.rotate(this.animationPhase * 0.15);
+                // Outer ring
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.6, 0, Math.PI * 2);
+                ctx.strokeStyle = this.hexToRgba('#00bbff', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#00bbff', fillAlpha);
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+                // Downward triangle
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.38);
+                ctx.lineTo(-r * 0.35, -r * 0.2);
+                ctx.lineTo(r * 0.35, -r * 0.2);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#ffffff', lineAlpha * 0.7);
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                // Small inner circle (bindu)
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.12, 0, Math.PI * 2);
+                ctx.fillStyle = this.hexToRgba('#ffffff', 0.6 * activation);
+                ctx.fill();
+                break;
+
+            case 6: // AJNA — Downward triangle + Om (Third Eye)
+                // Two petal arcs
+                ctx.beginPath();
+                ctx.ellipse(-r * 0.55, 0, r * 0.3, r * 0.55, 0, -Math.PI * 0.4, Math.PI * 0.4);
+                ctx.strokeStyle = this.hexToRgba('#8866dd', lineAlpha);
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.ellipse(r * 0.55, 0, r * 0.3, r * 0.55, 0, Math.PI * 0.6, Math.PI * 1.4);
+                ctx.strokeStyle = this.hexToRgba('#8866dd', lineAlpha);
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+                // Downward triangle
+                ctx.beginPath();
+                ctx.moveTo(0, r * 0.35);
+                ctx.lineTo(-r * 0.32, -r * 0.2);
+                ctx.lineTo(r * 0.32, -r * 0.2);
+                ctx.closePath();
+                ctx.strokeStyle = this.hexToRgba('#ffffff', lineAlpha);
+                ctx.fillStyle = this.hexToRgba('#bb88ff', fillAlpha);
+                ctx.lineWidth = 1.5;
+                ctx.fill();
+                ctx.stroke();
+                break;
+
+            case 7: // SAHASRARA — Bindu (dot) + radiating lines (Cosmic consciousness)
+                // Multiple concentric rings (representing 1000 petals)
+                for (let ring = 3; ring >= 1; ring--) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r * (ring * 0.2 + 0.1), 0, Math.PI * 2);
+                    ctx.strokeStyle = this.hexToRgba('#bb88ff', lineAlpha * (1 - ring * 0.15));
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+                // Radiating lines
+                for (let i = 0; i < 12; i++) {
+                    const a = (i / 12) * Math.PI * 2 + this.animationPhase * 0.3;
+                    ctx.beginPath();
+                    ctx.moveTo(r * 0.15 * Math.cos(a), r * 0.15 * Math.sin(a));
+                    ctx.lineTo(r * 0.55 * Math.cos(a), r * 0.55 * Math.sin(a));
+                    ctx.strokeStyle = this.hexToRgba('#ddbbff', lineAlpha * 0.5);
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                // Central bindu
+                ctx.beginPath();
+                ctx.arc(0, 0, r * 0.1, 0, Math.PI * 2);
+                ctx.fillStyle = this.hexToRgba('#ffffff', 0.9 * activation);
+                ctx.fill();
+                break;
+        }
+
+        ctx.restore();
     }
 
     drawLotusPetals(ctx, x, y, radius, chakra) {
-        const petals = Math.min(8, chakra.petals || 4); // Fewer petals
-        const activation = Math.max(0.4, chakra.intensity / 100);
-        const petalLength = radius * 0.25; // Smaller petals
+        const petals = Math.min(16, chakra.petals || 4);
+        const activation = Math.max(0.5, chakra.intensity / 100);
+        const petalLength = radius * 0.35;
 
         ctx.save();
         ctx.translate(x, y);
@@ -703,10 +889,16 @@ class ARRenderer {
             ctx.save();
             ctx.rotate(angle);
 
+            // Petal fill
             ctx.beginPath();
-            ctx.ellipse(radius + petalLength * 0.4, 0, petalLength, petalLength * 0.3, 0, 0, Math.PI * 2);
-            ctx.fillStyle = this.hexToRgba(chakra.glowColor, 0.25 * activation);
+            ctx.ellipse(radius + petalLength * 0.3, 0, petalLength, petalLength * 0.35, 0, 0, Math.PI * 2);
+            ctx.fillStyle = this.hexToRgba(chakra.glowColor, 0.4 * activation);
             ctx.fill();
+
+            // Petal outline
+            ctx.strokeStyle = this.hexToRgba(chakra.color, 0.55 * activation);
+            ctx.lineWidth = 1;
+            ctx.stroke();
 
             ctx.restore();
         }
