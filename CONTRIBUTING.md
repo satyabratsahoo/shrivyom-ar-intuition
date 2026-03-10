@@ -14,6 +14,8 @@ Thank you for your interest in contributing! This guide will help you get starte
 ```bash
 # Fork and clone the repo
 git clone https://github.com/<your-username>/shrivyom-ar-intuition.git
+# Or clone the original:
+# git clone https://github.com/satyabratsahoo/shrivyom-ar-intuition.git
 cd shrivyom-ar-intuition
 
 # Install dependencies
@@ -91,7 +93,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## Reporting Issues
 
-Use the [GitHub Issues](https://github.com/shrivyom/shrivyom-ar-intuition/issues) tab with the provided templates.
+Use the [GitHub Issues](https://github.com/satyabratsahoo/shrivyom-ar-intuition/issues) tab with the provided templates.
 
 ## License
 

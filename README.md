@@ -1,9 +1,9 @@
 # SHRIVYOM AR Intuition System
 
-[![CI](https://github.com/shrivyom/shrivyom-ar-intuition/actions/workflows/ci.yml/badge.svg)](https://github.com/shrivyom/shrivyom-ar-intuition/actions/workflows/ci.yml)
-[![Release](https://github.com/shrivyom/shrivyom-ar-intuition/actions/workflows/release.yml/badge.svg)](https://github.com/shrivyom/shrivyom-ar-intuition/actions/workflows/release.yml)
+[![CI](https://github.com/satyabratsahoo/shrivyom-ar-intuition/actions/workflows/ci.yml/badge.svg)](https://github.com/satyabratsahoo/shrivyom-ar-intuition/actions/workflows/ci.yml)
+[![Release](https://github.com/satyabratsahoo/shrivyom-ar-intuition/actions/workflows/release.yml/badge.svg)](https://github.com/satyabratsahoo/shrivyom-ar-intuition/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/shrivyom/shrivyom-ar-intuition?label=version)](https://github.com/shrivyom/shrivyom-ar-intuition/releases)
+[![Version](https://img.shields.io/github/v/release/satyabratsahoo/shrivyom-ar-intuition?label=version)](https://github.com/satyabratsahoo/shrivyom-ar-intuition/releases)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)
 ![GPU](https://img.shields.io/badge/GPU-Accelerated-green)
 

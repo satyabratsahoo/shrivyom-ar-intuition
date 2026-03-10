@@ -18,12 +18,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shrivyom/shrivyom-ar-intuition.git"
+    "url": "git+https://github.com/satyabratsahoo/shrivyom-ar-intuition.git"
   },
   "bugs": {
-    "url": "https://github.com/shrivyom/shrivyom-ar-intuition/issues"
+    "url": "https://github.com/satyabratsahoo/shrivyom-ar-intuition/issues"
   },
-  "homepage": "https://github.com/shrivyom/shrivyom-ar-intuition#readme",
+  "homepage": "https://github.com/satyabratsahoo/shrivyom-ar-intuition#readme",
   "keywords": [
     "electron",
     "ar",
@@ -113,7 +113,7 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "shrivyom",
+      "owner": "satyabratsahoo",
       "repo": "shrivyom-ar-intuition"
     }
   }
