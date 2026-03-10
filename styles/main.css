@@ -621,8 +621,9 @@ body {
 /* Chakra Panel */
 .chakra-panel {
     position: absolute;
-    bottom: 90px;
-    left: 15px;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 300px;
     max-width: 20vw;
     min-width: 240px;
@@ -633,6 +634,7 @@ body {
     backdrop-filter: blur(12px);
     max-height: 45vh;
     overflow-y: auto;
+    display: none;
 }
 
 .chakra-list {
@@ -713,7 +715,8 @@ body {
 .radar-container {
     position: absolute;
     bottom: 90px;
-    right: 300px;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
     z-index: 10;
 }
@@ -737,7 +740,7 @@ body {
 /* Audio Panel */
 .audio-panel {
     position: absolute;
-    bottom: 200px;
+    bottom: 300px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -745,6 +748,7 @@ body {
     align-items: center;
     gap: 8px;
     z-index: 10;
+    pointer-events: none;
 }
 
 .freq-balance {
@@ -841,13 +845,13 @@ body {
 /* Control Buttons */
 .control-buttons {
     position: absolute;
-    bottom: 70px;
+    bottom: 55px;
     right: 15px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
     align-items: flex-end;
-    max-width: 450px;
+    max-width: 650px;
 }
 
 .device-controls {
@@ -1050,14 +1054,12 @@ body {
 @media (max-width: 1600px) {
     .left-panel, .right-panel { width: 220px; min-width: 180px; }
     .chakra-panel { width: 260px; min-width: 220px; }
-    .radar-container { right: 260px; }
     #radar-canvas { width: 150px; height: 150px; }
 }
 
 @media (max-width: 1400px) {
     .left-panel, .right-panel { width: 200px; padding: 12px; min-width: 160px; }
     .chakra-panel { width: 240px; min-width: 200px; }
-    .radar-container { right: 240px; }
     #radar-canvas { width: 140px; height: 140px; }
     .device-select { min-width: 130px; max-width: 160px; }
 }
@@ -1065,7 +1067,6 @@ body {
 @media (max-width: 1200px) {
     .left-panel, .right-panel { width: 180px; padding: 10px; }
     .chakra-panel { width: 220px; }
-    .radar-container { right: 220px; }
     #radar-canvas { width: 120px; height: 120px; }
     .metric-label { font-size: 9px; }
     .metric-value { font-size: 10px; }
@@ -1074,7 +1075,6 @@ body {
 @media (min-width: 2560px) {
     .left-panel, .right-panel { width: 320px; max-width: 15vw; }
     .chakra-panel { width: 380px; max-width: 18vw; }
-    .radar-container { right: 380px; }
     #radar-canvas { width: 220px; height: 220px; }
     .panel-title { font-size: 15px; }
     .metric-label { font-size: 12px; }
@@ -1085,6 +1085,5 @@ body {
 @media (min-width: 3000px) {
     .left-panel, .right-panel { width: 380px; padding: 24px; }
     .chakra-panel { width: 420px; }
-    .radar-container { right: 440px; }
     #radar-canvas { width: 260px; height: 260px; }
 }

@@ -415,26 +415,29 @@ class ARRenderer {
                 y = bodyTop + bodyHeight * chakra.position;
             }
 
-            // Draw the chakra with Rig Vedic styling
-            this.drawRigVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale);
+            // Draw the chakra with Doctor Strange + Vedic styling
+            this.drawDocStrangeVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale);
         }
 
         // Draw Kundalini energy flow
         this.drawKundaliniEnergy(ctx, centerX, bodyTop, bodyBottom);
 
-        // Draw ghost/paranormal indicator (left side)
+        // Draw Vedic Frequency Engine (center-top)
+        this.drawVedicEngine(ctx, w, h);
+
+        // Draw ghost/paranormal indicator
         this.drawGhostIndicator(ctx, w, h);
 
-        // Draw intuition third eye indicator (right side)
+        // Draw intuition third eye indicator
         this.drawIntuitionIndicator(ctx, w, h);
 
-        // Draw Yes/No Decision indicator (bottom center)
+        // Draw Yes/No Decision indicator
         this.drawDecisionIndicator(ctx, w, h);
 
-        // Draw Shiva Mudras (bottom left)
+        // Draw Shiva Mudras
         this.drawShivaMudras(ctx, w, h);
 
-        // Draw Noise Type List (bottom right)
+        // Draw Noise Type List
         this.drawNoiseTypeList(ctx, w, h);
 
         // Update animation phase
@@ -446,7 +449,7 @@ class ARRenderer {
 
         const decision = window.audioAnalyzer.getDecisionSystem();
         const x = w / 2;
-        const y = h - 80;
+        const y = h * 0.73;
 
         // Background panel
         ctx.fillStyle = 'rgba(10, 15, 25, 0.8)';
@@ -495,8 +498,8 @@ class ARRenderer {
     }
 
     drawShivaMudras(ctx, w, h) {
-        const startX = 20;
-        const startY = h - 150;
+        const startX = Math.max(310, w * 0.2);
+        const startY = h - 260;
         const intuition = this.intuitionLevel;
 
         // Update active mudras based on intuition
@@ -551,8 +554,8 @@ class ARRenderer {
         if (!window.audioAnalyzer) return;
 
         const noiseTypes = window.audioAnalyzer.getNoiseTypes();
-        const startX = w - 160;
-        const startY = h - 150;
+        const startX = Math.min(w - 470, w * 0.72);
+        const startY = h - 260;
 
         // Background panel
         ctx.fillStyle = 'rgba(10, 15, 25, 0.8)';
@@ -607,6 +610,281 @@ class ARRenderer {
             ctx.font = '8px Consolas';
             ctx.fillText(`${Math.round(noise.level)}%`, levelX + barWidth + 5, y + 4);
         });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // DR STRANGE × VEDIC CHAKRA — Cinematic mandala with yantra
+    // ═══════════════════════════════════════════════════════════
+    drawDocStrangeVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale) {
+        const activation = Math.max(0.25, chakra.intensity / 100);
+        const baseRadius = (28 + activation * 38) * dynamicScale;
+        const pulse = 1 + 0.08 * Math.sin(this.animationPhase * 2.5 + chakra.id * 0.7);
+        const radius = baseRadius * pulse;
+        const intensity = this.calibration.glowIntensity;
+        const complexity = this.calibration.geometryComplexity;
+        const phase = this.animationPhase;
+
+        if (radius < 5) return;
+
+        // ── 1. OUTER GLOW (Dr Strange portal rings) ──
+        for (let glow = 5; glow > 0; glow--) {
+            const glowR = radius + glow * 12;
+            const a = activation * (1 - glow * 0.15) * 0.4 * intensity;
+            ctx.beginPath();
+            ctx.arc(x, y, glowR, 0, Math.PI * 2);
+            ctx.fillStyle = this.hexToRgba(chakra.glowColor, a * 0.12);
+            ctx.fill();
+            ctx.strokeStyle = this.hexToRgba(chakra.glowColor, a);
+            ctx.lineWidth = 2 + (5 - glow);
+            ctx.stroke();
+        }
+
+        // ── 2. OUTER MANDALA RING with rotating runes ──
+        ctx.save();
+        ctx.translate(x, y);
+        const outerR = radius * 1.2;
+        const dir = chakra.id % 2 === 0 ? 1 : -1;
+        ctx.rotate(phase * 0.3 * dir + chakra.id);
+
+        // Outer circle
+        ctx.beginPath();
+        ctx.arc(0, 0, outerR, 0, Math.PI * 2);
+        ctx.strokeStyle = this.hexToRgba(chakra.color, 0.7 * activation);
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Diamond rune markers on outer ring
+        const runeCount = 12 * complexity;
+        for (let i = 0; i < runeCount; i++) {
+            const a = (i / runeCount) * Math.PI * 2;
+            const segAlpha = activation * (0.5 + 0.3 * Math.sin(phase * 3 + i * 0.5));
+            ctx.save();
+            ctx.rotate(a);
+            ctx.beginPath();
+            ctx.moveTo(outerR * 0.85, 0);
+            ctx.lineTo(outerR, -3);
+            ctx.lineTo(outerR * 1.08, 0);
+            ctx.lineTo(outerR, 3);
+            ctx.closePath();
+            ctx.fillStyle = this.hexToRgba(chakra.color, segAlpha * 0.6);
+            ctx.fill();
+            ctx.strokeStyle = this.hexToRgba(chakra.glowColor, segAlpha);
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+            ctx.restore();
+        }
+        ctx.restore();
+
+        // ── 3. SACRED GEOMETRY RING (counter-rotating) ──
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(-phase * 0.5 * dir + chakra.id * 0.5);
+
+        const midR = radius * 0.8;
+        const shapes = [6, 8, 12].slice(0, complexity);
+        shapes.forEach((sides, idx) => {
+            const sR = midR * (0.65 + idx * 0.18);
+            const rot = (idx % 2 === 0 ? 1 : -1) * phase * 0.4;
+            ctx.save();
+            ctx.rotate(rot);
+            ctx.beginPath();
+            for (let i = 0; i <= sides; i++) {
+                const a = (i / sides) * Math.PI * 2;
+                const px = sR * Math.cos(a);
+                const py = sR * Math.sin(a);
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = this.hexToRgba(chakra.glowColor, activation * (0.5 - idx * 0.1));
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            ctx.restore();
+        });
+
+        // Star-of-David lines
+        const starPts = 6;
+        for (let i = 0; i < starPts; i++) {
+            const a1 = (i / starPts) * Math.PI * 2;
+            const a2 = ((i + 2) / starPts) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(midR * Math.cos(a1), midR * Math.sin(a1));
+            ctx.lineTo(midR * Math.cos(a2), midR * Math.sin(a2));
+            ctx.strokeStyle = this.hexToRgba(chakra.color, activation * 0.3);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        ctx.restore();
+
+        // ── 4. INNER SPOKES + ORBS ──
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(phase * 0.25 + chakra.id * 0.3);
+        const spokes = chakra.id + 4;
+        const innerR = radius * 0.5;
+        for (let i = 0; i < spokes; i++) {
+            const a = (i / spokes) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(innerR * Math.cos(a), innerR * Math.sin(a));
+            ctx.strokeStyle = this.hexToRgba(chakra.glowColor, activation * 0.4);
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            const orbX = innerR * 0.85 * Math.cos(a);
+            const orbY = innerR * 0.85 * Math.sin(a);
+            ctx.beginPath();
+            ctx.arc(orbX, orbY, 2.5 + activation * 2, 0, Math.PI * 2);
+            ctx.fillStyle = this.hexToRgba(chakra.color, activation * 0.8);
+            ctx.fill();
+        }
+        ctx.restore();
+
+        // ── 5. CORE GRADIENT (bright center) ──
+        const coreR = radius * 0.35;
+        const cGrad = ctx.createRadialGradient(x, y, 0, x, y, coreR);
+        cGrad.addColorStop(0, `rgba(255,255,255,${activation * 0.95})`);
+        cGrad.addColorStop(0.3, this.hexToRgba(chakra.color, activation * 0.9));
+        cGrad.addColorStop(0.7, this.hexToRgba(chakra.glowColor, activation * 0.5));
+        cGrad.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(x, y, coreR, 0, Math.PI * 2);
+        ctx.fillStyle = cGrad;
+        ctx.fill();
+
+        // ── 6. LOTUS PETALS ──
+        this.drawLotusPetals(ctx, x, y, radius, chakra);
+
+        // ── 7. HINDU YANTRA (inside core) ──
+        this.drawChakraYantra(ctx, x, y, radius * 0.85, chakra, activation);
+
+        // ── 8. FREQUENCY WAVE RING ──
+        this.drawFrequencyWave(ctx, x, y, radius, chakra, activation);
+
+        // ── 9. BIJA MANTRA (Sanskrit seed syllable) ──
+        if (chakra.mantra) {
+            ctx.save();
+            ctx.shadowColor = chakra.glowColor;
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = this.hexToRgba('#ffffff', 0.9 + 0.1 * activation);
+            ctx.font = `bold ${Math.max(18, radius * 0.45)}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(chakra.mantra, x, y);
+            ctx.restore();
+        }
+
+        // ── 10. HUD LABEL (to the right, Dr Strange style) ──
+        if (activation > 0.15 && this.calibration.labelOpacity > 0) {
+            this.drawHUDLabel(ctx, x + radius + 35, y, chakra, activation);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // VEDIC FREQUENCY ENGINE — Live detected frequency readout
+    // ═══════════════════════════════════════════════════════════
+    drawVedicEngine(ctx, w, h) {
+        if (!window.audioAnalyzer) return;
+
+        const metrics = window.audioAnalyzer.getMetrics();
+        const tattva = window.audioAnalyzer.getShivaTattvaState();
+        const eeg = window.audioAnalyzer.getEEGBands();
+
+        const cx = w / 2;
+        const y0 = h * 0.06;
+        const panelW = 360;
+        const panelH = 100;
+
+        // Panel background
+        ctx.fillStyle = 'rgba(5,10,20,0.85)';
+        ctx.beginPath();
+        ctx.roundRect(cx - panelW / 2, y0, panelW, panelH, 10);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,255,170,0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Title
+        ctx.fillStyle = 'rgba(0,255,170,0.95)';
+        ctx.font = 'bold 11px Consolas';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚛ VEDIC FREQUENCY ENGINE ⚛', cx, y0 + 16);
+
+        // Dominant frequency
+        const domFreq = metrics.dominantFrequency || 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Consolas';
+        ctx.fillText(`${domFreq.toFixed(1)} Hz`, cx, y0 + 44);
+
+        // Match dominant frequency to nearest solfeggio
+        const solfeggioMap = [
+            { freq: 396, label: 'UT • Liberation', color: '#cc2222' },
+            { freq: 417, label: 'RE • Change', color: '#dd6600' },
+            { freq: 528, label: 'MI • Miracles', color: '#ddaa00' },
+            { freq: 639, label: 'FA • Connection', color: '#00bb66' },
+            { freq: 741, label: 'SOL • Expression', color: '#0099dd' },
+            { freq: 852, label: 'LA • Intuition', color: '#6644bb' },
+            { freq: 963, label: 'SI • Oneness', color: '#9966ff' }
+        ];
+        let closest = solfeggioMap[0];
+        let minDist = Infinity;
+        for (const s of solfeggioMap) {
+            const d = Math.abs(domFreq - s.freq);
+            if (d < minDist) { minDist = d; closest = s; }
+        }
+        ctx.fillStyle = closest.color;
+        ctx.font = '10px Consolas';
+        ctx.fillText(`≈ ${closest.freq}Hz ${closest.label}`, cx, y0 + 58);
+
+        // Tattva bar row
+        const bars = [
+            { label: 'SHIVA', val: tattva.shiva, color: '#00ddff' },
+            { label: 'SHAKTI', val: tattva.shakti, color: '#ff66aa' },
+            { label: 'PSYCHE', val: tattva.psychic, color: '#bb88ff' },
+            { label: 'EARTH', val: tattva.schumann, color: '#44ff88' }
+        ];
+        const barW = 70;
+        const barH = 5;
+        const startX = cx - (bars.length * (barW + 10)) / 2 + 5;
+        bars.forEach((b, i) => {
+            const bx = startX + i * (barW + 10);
+            const by = y0 + 72;
+            ctx.fillStyle = 'rgba(200,200,200,0.6)';
+            ctx.font = '8px Consolas';
+            ctx.textAlign = 'left';
+            ctx.fillText(b.label, bx, by);
+            ctx.fillStyle = 'rgba(30,30,40,0.8)';
+            ctx.fillRect(bx, by + 3, barW, barH);
+            ctx.fillStyle = b.color;
+            ctx.fillRect(bx, by + 3, barW * Math.min(1, (b.val || 0) / 100), barH);
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = '7px Consolas';
+            ctx.fillText(`${Math.round(b.val || 0)}%`, bx + barW + 3, by + 8);
+        });
+
+        // EEG mini band indicators
+        const eegBands = [
+            { label: 'δ', val: eeg.delta?.value || 0, color: '#880088' },
+            { label: 'θ', val: eeg.theta?.value || 0, color: '#6666ff' },
+            { label: 'α', val: eeg.alpha?.value || 0, color: '#00ff66' },
+            { label: 'β', val: eeg.beta?.value || 0, color: '#ffff00' },
+            { label: 'γ', val: eeg.gamma?.value || 0, color: '#ff6666' }
+        ];
+        const eegStartX = cx - 80;
+        const eegY = y0 + 90;
+        ctx.textAlign = 'center';
+        eegBands.forEach((b, i) => {
+            const ex = eegStartX + i * 34;
+            const barVal = Math.min(1, (b.val || 0) / 80);
+            ctx.fillStyle = b.color;
+            ctx.font = 'bold 9px Consolas';
+            ctx.fillText(b.label, ex + 5, eegY);
+            ctx.fillStyle = 'rgba(30,30,40,0.8)';
+            ctx.fillRect(ex - 5, eegY + 2, 22, 4);
+            ctx.fillStyle = b.color;
+            ctx.fillRect(ex - 5, eegY + 2, 22 * barVal, 4);
+        });
+
+        ctx.textAlign = 'left';
     }
 
     drawRigVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale) {
@@ -920,8 +1198,8 @@ class ARRenderer {
 
         if (ghostLevel < 15) return;
 
-        const x = 80;
-        const y = h / 2 - 100;
+        const x = Math.max(300, w * 0.2);
+        const y = h * 0.32;
         const pulse = 1 + 0.2 * Math.sin(Date.now() / 150);
 
         // Ghost icon and level
@@ -956,8 +1234,8 @@ class ARRenderer {
     }
 
     drawIntuitionIndicator(ctx, w, h) {
-        const x = w - 100;
-        const y = h / 2;
+        const x = Math.min(w - 300, w * 0.8);
+        const y = h * 0.35;
         const baseRadius = 50;
         const activation = this.intuitionLevel / 100;
 
