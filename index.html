@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHRIVYOM • AR Intuition System v4.0</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Loading Screen - Matrix Style -->
+    <div id="loading-screen" class="loading-screen">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="loading-content">
+            <div class="mandala-loader">
+                <div class="mandala-ring ring-1"></div>
+                <div class="mandala-ring ring-2"></div>
+                <div class="mandala-ring ring-3"></div>
+                <div class="mandala-core"></div>
+            </div>
+            <h1 class="loading-title">SHRIVYOM</h1>
+            <p class="loading-subtitle">INTUITION MATRIX v4.0 • ULTIMATE EDITION</p>
+            <div class="system-check">
+                <div class="check-item" id="check-gpu">
+                    <span class="check-icon">◯</span>
+                    <span class="check-text">GPU ACCELERATION</span>
+                </div>
+                <div class="check-item" id="check-camera">
+                    <span class="check-icon">◯</span>
+                    <span class="check-text">CAMERA SYSTEMS</span>
+                </div>
+                <div class="check-item" id="check-audio">
+                    <span class="check-icon">◯</span>
+                    <span class="check-text">AUDIO ANALYSIS</span>
+                </div>
+                <div class="check-item" id="check-chakra">
+                    <span class="check-icon">◯</span>
+                    <span class="check-text">CHAKRA SYSTEMS</span>
+                </div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                    <div class="progress-glow"></div>
+                </div>
+                <span class="progress-text" id="progress-text">0%</span>
+            </div>
+            <p class="status-message" id="status-message">INITIALIZING CONSCIOUSNESS INTERFACE...</p>
+        </div>
+    </div>
+
+    <!-- Unloading Screen - Exit Matrix -->
+    <div id="unloading-screen" class="unloading-screen hidden">
+        <canvas id="exit-canvas"></canvas>
+        <div class="unloading-content">
+            <div class="exit-portal">
+                <div class="portal-ring"></div>
+                <div class="portal-ring"></div>
+                <div class="portal-ring"></div>
+            </div>
+            <h2 class="exit-title">EXITING MATRIX</h2>
+            <p class="exit-message">Consciousness returning to baseline...</p>
+        </div>
+    </div>
+
+    <!-- Main AR Interface -->
+    <div id="main-interface" class="main-interface hidden">
+        <!-- Camera Feed -->
+        <video id="camera-feed" autoplay playsinline></video>
+
+        <!-- WebGL AR Canvas -->
+        <canvas id="ar-canvas"></canvas>
+
+        <!-- HUD Overlay -->
+        <div id="hud-overlay" class="hud-overlay">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-left-section">
+                    <div class="session-info">
+                        <span class="icon">⏱</span>
+                        <span id="session-time">00:00:00</span>
+                    </div>
+                    <div class="fps-display">
+                        <span class="icon">◎</span>
+                        <span id="fps-value">60</span> FPS
+                    </div>
+                </div>
+
+                <div class="intuition-status" id="intuition-status">
+                    <div class="status-glow"></div>
+                    <span class="status-text">● INITIALIZING</span>
+                </div>
+
+                <div class="top-right-section">
+                    <div class="eeg-state" id="eeg-state">
+                        <span class="icon">🧠</span>
+                        <span id="eeg-text">SCANNING</span>
+                        <div class="eeg-wave" id="eeg-wave"></div>
+                    </div>
+                    <div class="gpu-status">
+                        <span class="icon">⚡</span>
+                        <span>GPU ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Left Panel - Biometrics -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">⚡</span>
+                    <h3 class="panel-title">BIOMETRICS</h3>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">FOCUS</span>
+                            <span class="metric-value" id="focus-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill focus-bar" id="focus-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">STILLNESS</span>
+                            <span class="metric-value" id="stillness-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill stillness-bar" id="stillness-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">BREATH</span>
+                            <span class="metric-value" id="breath-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill breath-bar" id="breath-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">CALMNESS</span>
+                            <span class="metric-value" id="calmness-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill calmness-bar" id="calmness-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">BALANCE</span>
+                            <span class="metric-value" id="balance-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill balance-bar" id="balance-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Environment & Audio -->
+            <div class="right-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">🔊</span>
+                    <h3 class="panel-title">ENVIRONMENT</h3>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">NOISE LEVEL</span>
+                            <span class="metric-value" id="noise-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill noise-bar" id="noise-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <div class="metric-header">
+                            <span class="metric-label">NEARBY INTUITION</span>
+                            <span class="metric-value" id="nearby-value">0%</span>
+                        </div>
+                        <div class="metric-bar-wrap">
+                            <div class="bar-container">
+                                <div class="bar-fill nearby-bar" id="nearby-bar"></div>
+                                <div class="bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EEG Map Display -->
+                <div class="eeg-map-container">
+                    <div class="panel-header small">
+                        <span class="panel-icon">🧠</span>
+                        <h3 class="panel-title">EEG MAP</h3>
+                    </div>
+                    <canvas id="eeg-canvas" width="180" height="100"></canvas>
+                </div>
+
+                <!-- Intuition Display -->
+                <div class="intuition-display">
+                    <span class="intuition-label">INTUITION LEVEL</span>
+                    <div class="intuition-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="intuition-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="intuition-fill" id="intuition-circle" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <span class="intuition-value" id="intuition-value">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chakra Panel - Bottom Left -->
+            <div class="chakra-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">☸</span>
+                    <h3 class="panel-title">7 KUNDALINI CHAKRAS</h3>
+                </div>
+                <div class="chakra-list">
+                    <div class="chakra-item" data-chakra="7">
+                        <div class="chakra-indicator crown"></div>
+                        <span class="chakra-name">CROWN</span>
+                        <span class="chakra-freq">963 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-7-bar"></div></div>
+                        <span class="chakra-value" id="chakra-7-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="6">
+                        <div class="chakra-indicator third-eye"></div>
+                        <span class="chakra-name">THIRD EYE</span>
+                        <span class="chakra-freq">852 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-6-bar"></div></div>
+                        <span class="chakra-value" id="chakra-6-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="5">
+                        <div class="chakra-indicator throat"></div>
+                        <span class="chakra-name">THROAT</span>
+                        <span class="chakra-freq">741 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-5-bar"></div></div>
+                        <span class="chakra-value" id="chakra-5-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="4">
+                        <div class="chakra-indicator heart"></div>
+                        <span class="chakra-name">HEART</span>
+                        <span class="chakra-freq">639 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-4-bar"></div></div>
+                        <span class="chakra-value" id="chakra-4-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="3">
+                        <div class="chakra-indicator solar"></div>
+                        <span class="chakra-name">SOLAR PLEXUS</span>
+                        <span class="chakra-freq">528 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-3-bar"></div></div>
+                        <span class="chakra-value" id="chakra-3-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="2">
+                        <div class="chakra-indicator sacral"></div>
+                        <span class="chakra-name">SACRAL</span>
+                        <span class="chakra-freq">417 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-2-bar"></div></div>
+                        <span class="chakra-value" id="chakra-2-value">0%</span>
+                    </div>
+                    <div class="chakra-item" data-chakra="1">
+                        <div class="chakra-indicator root"></div>
+                        <span class="chakra-name">ROOT</span>
+                        <span class="chakra-freq">396 Hz</span>
+                        <div class="chakra-bar"><div class="chakra-fill" id="chakra-1-bar"></div></div>
+                        <span class="chakra-value" id="chakra-1-value">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Radar Display -->
+            <div class="radar-container">
+                <canvas id="radar-canvas" width="200" height="200"></canvas>
+                <span class="radar-label">CHAKRA RADAR</span>
+            </div>
+
+            <!-- Frequency Balance & Audio Spectrum -->
+            <div class="audio-panel">
+                <div class="freq-balance" id="freq-balance">
+                    <span class="freq-title">FREQUENCY BALANCE</span>
+                    <div class="freq-bar-container">
+                        <div class="freq-bar-fill" id="freq-bar-fill"></div>
+                    </div>
+                    <span class="freq-value" id="freq-value">100%</span>
+                </div>
+                <canvas id="spectrum-canvas" width="300" height="60"></canvas>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="bottom-bar">
+                <div class="status-line">
+                    <span class="status-dot"></span>
+                    SHRIVYOM AR INTUITION SYSTEM v4.0 • ULTIMATE EDITION • GPU ACCELERATED
+                </div>
+                <div class="shortcuts">
+                    [ESC] Exit • [F11] Fullscreen • [A] Audio Devices • [C] Cameras • [M] Mute • [SPACE] Session
+                </div>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="control-buttons">
+                <div class="device-controls">
+                    <div class="device-group">
+                        <label class="device-label">📷 CAMERA</label>
+                        <select id="camera-select" class="device-select">
+                            <option value="">Select Camera</option>
+                        </select>
+                    </div>
+                    <div class="device-group">
+                        <label class="device-label">🎤 AUDIO INPUT</label>
+                        <select id="audio-select" class="device-select">
+                            <option value="">Select Audio</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="session-controls">
+                    <button id="start-btn" class="control-btn start-btn">
+                        <span class="btn-icon">▶</span>
+                        <span class="btn-text">START SESSION</span>
+                    </button>
+                    <button id="stop-btn" class="control-btn stop-btn" disabled>
+                        <span class="btn-icon">⏹</span>
+                        <span class="btn-text">STOP SESSION</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Corner Brackets - Iron Man Style -->
+        <div class="corner-bracket top-left">
+            <div class="bracket-line h"></div>
+            <div class="bracket-line v"></div>
+        </div>
+        <div class="corner-bracket top-right">
+            <div class="bracket-line h"></div>
+            <div class="bracket-line v"></div>
+        </div>
+        <div class="corner-bracket bottom-left">
+            <div class="bracket-line h"></div>
+            <div class="bracket-line v"></div>
+        </div>
+        <div class="corner-bracket bottom-right">
+            <div class="bracket-line h"></div>
+            <div class="bracket-line v"></div>
+        </div>
+
+        <!-- Scan Line Effect -->
+        <div class="scan-line" id="scan-line"></div>
+
+        <!-- Center Reticle -->
+        <div class="center-reticle" id="center-reticle">
+            <div class="reticle-ring"></div>
+            <div class="reticle-cross h"></div>
+            <div class="reticle-cross v"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/chakra-audio.js"></script>
+    <script src="scripts/audio-analyzer.js"></script>
+    <script src="scripts/face-detection.js"></script>
+    <script src="scripts/ar-renderer.js"></script>
+    <script src="scripts/hud-controller.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
+

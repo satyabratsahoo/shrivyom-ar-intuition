@@ -1,0 +1,120 @@
+{
+  "name": "shrivyom-ar-intuition",
+  "version": "1.0.0",
+  "description": "AR Chakra Visualization & Intuition Training System with GPU-accelerated sacred geometry, 7 Kundalini chakras, and binaural audio",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "lint": "eslint scripts/ main.js",
+    "lint:fix": "eslint scripts/ main.js --fix",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --win --mac --linux",
+    "version": "node -e \"console.log(require('./package.json').version)\"",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrivyom/shrivyom-ar-intuition.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shrivyom/shrivyom-ar-intuition/issues"
+  },
+  "homepage": "https://github.com/shrivyom/shrivyom-ar-intuition#readme",
+  "keywords": [
+    "electron",
+    "ar",
+    "chakra",
+    "meditation",
+    "kundalini",
+    "sacred-geometry",
+    "binaural-beats",
+    "webgl",
+    "gpu-acceleration",
+    "three-js",
+    "face-detection",
+    "solfeggio"
+  ],
+  "author": "Shrivyom",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "eslint": "^8.57.1"
+  },
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1640029074",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "three": "^0.160.0",
+    "tone": "^14.7.77"
+  },
+  "build": {
+    "appId": "com.shrivyom.intuition",
+    "productName": "Shrivyom AR Intuition",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "scripts/**/*",
+      "styles/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.healthcare-fitness"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "shrivyom",
+      "repo": "shrivyom-ar-intuition"
+    }
+  }
+}
