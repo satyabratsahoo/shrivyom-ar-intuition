@@ -401,10 +401,9 @@ class ARRenderer {
             // Draw the chakra with Rig Vedic styling
             this.drawRigVedicChakra(ctx, x, y, chakra, bodyWidth, dynamicScale);
         }
-        }
 
         // Draw Kundalini energy flow
-        this.drawKundaliniEnergy(ctx, centerX, scaledBodyTop, scaledBodyBottom);
+        this.drawKundaliniEnergy(ctx, centerX, bodyTop, bodyBottom);
 
         // Draw ghost/paranormal indicator (left side)
         this.drawGhostIndicator(ctx, w, h);
